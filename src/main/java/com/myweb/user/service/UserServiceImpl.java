@@ -1,6 +1,7 @@
 package com.myweb.user.service;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import com.myweb.user.model.UserDAO;
 import com.myweb.user.model.UserDTO;
@@ -60,7 +61,7 @@ public class UserServiceImpl implements UserService {
 		/*
 			1.아이디는 세션에 있습니다.
 			2.아이디 기반으로 회원정보를 조회하는 getInfo()를 DAO에 생성합니다.
-			3.서비스에서는 getInfo()를 호출하고, 조회한 데이터를 request에 저장합니다.
+			3.서비스에서는 getUser()를 호출하고, 조회한 데이터를 request에 저장합니다.
 			4.forward를 이용해서 modify.jsp로 이동합니다.
 			5.회원정보를 input태그에 미리 출력해주면 됩니다.
 			
@@ -68,14 +69,73 @@ public class UserServiceImpl implements UserService {
 		HttpSession session = request.getSession();
 		String id = (String)session.getAttribute("user_id");
 		
+		//DAO객체 생성
 		UserDAO dao = UserDAO.getInstance();
-		UserDTO dto = dao.getInfo(id);
-		request.setAttribute("user_id", dto.getId());
-		request.setAttribute("user_pw", dto.getPw());
-		request.setAttribute("user_name", dto.getName());
-		request.setAttribute("user_email", dto.getEmail());
-		request.setAttribute("user_gender", dto.getGender());
+		UserDTO dto = dao.getUser(id);
+		
+		//dto를 클라이언트로 가지고 감
+		request.setAttribute("dto", dto); //이름, 값
 		request.getRequestDispatcher("modify.jsp").forward(request, response);
-		//response.sendRedirect("modify.jsp");
+	}
+
+	@Override
+	public void update(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//클라이언트의 값을 받음
+		String id = request.getParameter("id");
+		String pw = request.getParameter("pw");
+		String name = request.getParameter("name");
+		String email = request.getParameter("email");
+		String gender = request.getParameter("gender");
+		//parameter를 dto에 저장
+		UserDTO dto = new UserDTO(id, pw, name, email, gender, null);
+		
+		//DAO생성
+		UserDAO dao = UserDAO.getInstance();
+		//업데이트
+		int result = dao.update(dto);
+		if(result == 1) { //update 성공
+			//세션 name을 수정
+			HttpSession session = request.getSession();
+			session.setAttribute("user_name", name);
+			
+			//java에서 알림창을 화면에 보내는 방법
+			//out객체 - 클라이언트로 출력
+			response.setContentType("text/html; charset=UTF-8"); //문서에 대한 타입
+			PrintWriter out = response.getWriter();
+			out.println("<script>");
+			out.println("alert('회원정보가 정상 수정되었습니다.');");
+			out.println("location.href='mypage.user';");
+			out.println("</script>");
+		} else { //update 실패
+			//유저페이지로 보냄
+			response.sendRedirect("mypage.user"); //MVC2에서는 리다이렉트가 컨트롤러의 경로가 됩니다.
+		}
+	}
+
+	@Override
+	public void delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		/*
+		 * 1.화면에서 넘어오는 pw값을 받으세요.(아이디는 세션에 있습니다.)
+		 * 2.회원탈퇴는 비밀번호가 일치하는지 확인하고, 탈퇴를 진행합니다.
+		 *   => login메서드는 id, pw를 받아서 비밀번호가 일치하는지 확인할 수 있습니다.(재활용)
+		 * 3.login메서드가 DTO를 반환하면 DAO에 delete() 메서드를 만들고, 회원삭제를 진행하면 됩니다.
+		 * 4.삭제 성공시에는 세션을 전부 삭제하고 "홈화면"으로 리다이렉트,
+		 *   login메서드가 null을 반환하면 delete.jsp에 "비밀번호를 확인하세요." 메시지를 남겨주면 됩니다.
+		 */
+		HttpSession session = request.getSession(); //세션
+		String id = (String)session.getAttribute("user_id");
+		String pw = request.getParameter("pw");
+		
+		//pw가 일치하는지 login메서드로 확인
+		UserDAO dao = UserDAO.getInstance();
+		UserDTO dto = dao.login(id, pw);
+		if(dto != null) { //pw가 일치한다는 의미
+			dao.delete(id); //delete 실행
+			session.invalidate();
+			response.sendRedirect(request.getContextPath() + "/index.jsp"); //홈화면
+		} else { //pw가 틀린 경우
+			request.setAttribute("msg", "비밀번호를 확인하세요.");
+			request.getRequestDispatcher("delete.jsp").forward(request, response);
+		}
 	}
 }

@@ -36,8 +36,8 @@ public class UserController extends HttpServlet {
 		String uri = request.getRequestURI(); //ip, port번호 제외된 주소
 		String path = request.getContextPath(); //프로젝트 식별이름
 		String command = uri.substring(path.length());
-		System.out.println("uri = " + uri);
-		System.out.println("path = " + path);
+		//System.out.println("uri = " + uri);
+		//System.out.println("path = " + path);
 		System.out.println("command = " + command);
 		
 		//공통으로 사용할 유저서비스객체
@@ -65,6 +65,15 @@ public class UserController extends HttpServlet {
 			HttpSession session = request.getSession();
 			session.invalidate();
 			response.sendRedirect(request.getContextPath() + "/index.jsp"); //메인화면으로
+		} else if(command.equals("/user/update.user")) { //회원정보수정
+			service = new UserServiceImpl();
+			service.update(request, response);
+		} else if(command.equals("/user/delete.user")) { //삭제화면
+			//MVC2는 기본 이동이 forward
+			request.getRequestDispatcher("delete.jsp").forward(request, response);
+		} else if(command.equals("/user/deleteForm.user")) {
+			service = new UserServiceImpl();
+			service.delete(request, response);
 		}
 	}
 }

@@ -20,43 +20,33 @@
 	
 		<hr/>
 		
-		<form action="#" method="post">
+		<form action="update.user" method="post">
 			<table>
 				<tr>
 					<td>아이디</td>
-					<td><input type="text" name="id" value="${user_id}" placeholder="4글자 이상" readonly="readonly"/></td>
+					<td><input type="text" name="id" value="${dto.id}" placeholder="4글자 이상" readonly="readonly"/></td>
 				</tr>
 				<tr>
 					<td>비밀번호</td>
-					<td><input type="password" name="pw" value="${user_pw}" placeholder="4글자 이상" required="required" pattern="[0-9A-Za-z]{4,}"/></td>
+					<td><input type="password" name="pw" placeholder="4글자 이상" required="required" pattern="[0-9A-Za-z]{4,}"/></td>
 				</tr>
 				<tr>
 					<td>이름</td>
-					<td><input type="text" name="name" value="${user_name}" placeholder="이름" required="required"/></td>
+					<td><input type="text" name="name" value="${dto.name}" placeholder="이름" required="required"/></td>
 				</tr>
 				<tr>
 					<td>이메일</td>
-					<td><input type="email" name="email" value="${user_email}"/></td>
+					<td><input type="email" name="email" value="${dto.email}"/></td>
 				</tr>
 				<tr>
 					<td>남? 여?</td>
 					<td>
-						<c:choose>
-							<c:when test="${user_gender == 'M'}">
-								<input type="radio" name="gender" value="M" checked="checked"/>남자
-								<input type="radio" name="gender" value="F"/>여자
-							</c:when>
-							<c:otherwise>
-								<input type="radio" name="gender" value="M"/>남자
-								<input type="radio" name="gender" value="F" checked="checked"/>여자
-							</c:otherwise>
-						</c:choose>
+						<input type="radio" name="gender" value="M" ${dto.gender == 'M' ? 'checked' : ''}/>남자
+						<input type="radio" name="gender" value="F" ${dto.gender == 'F' ? 'checked' : ''}/>여자
 					</td>
 				</tr>
 			</table>
-			
 			<br/>
-			
 			<input type="submit" value="수정"/>
 			<input type="button" value="취소" onclick="location.href='mypage.user';"/>
 		</form>
