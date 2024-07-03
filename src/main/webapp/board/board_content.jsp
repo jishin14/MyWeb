@@ -33,8 +33,10 @@
 		<tr>
 			<td colspan="4" align="center">
 				<input type="button" value="목록" onclick="location.href='list.board';"/>&nbsp;&nbsp;
-				<input type="button" value="수정" onclick="location.href='modify.board?bno=${dto.bno}';"/>&nbsp;&nbsp;
-				<input type="button" value="삭제" onclick="location.href='delete.board?bno=${dto.bno}';"/>&nbsp;&nbsp;
+				<c:if test="${dto.writer == sessionScope.user_id}">
+					<input type="button" value="수정" onclick="location.href='modify.board?bno=${dto.bno}&writer=${dto.writer}';"/>&nbsp;&nbsp;
+					<input type="button" value="삭제" onclick="location.href='delete.board?bno=${dto.bno}&writer=${dto.writer}';"/>&nbsp;&nbsp;
+				</c:if>
 				<!-- 삭제는 원래, post방식으로 처리해야 합니다. -->
 			</td>
 		</tr>

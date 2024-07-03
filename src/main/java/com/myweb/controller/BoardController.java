@@ -43,6 +43,12 @@ public class BoardController extends HttpServlet {
 			service = new BoardServiceImpl();
 			service.getList(request, response);
 		} else if(command.equals("/board/write.board")) { //글 작성화면
+//			HttpSession session = request.getSession();
+//			String user_id = (String)session.getAttribute("user_id");
+//			if(user_id == null) {
+//				response.sendRedirect("/MyWeb/index.jsp");
+//				return;
+//			}
 			request.getRequestDispatcher("board_write.jsp").forward(request, response);
 		} else if(command.equals("/board/registForm.board")) { //글 등록
 			service = new BoardServiceImpl();
